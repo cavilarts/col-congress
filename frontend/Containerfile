@@ -1,0 +1,19 @@
+FROM docker.io/library/rust:1-bookworm AS build
+RUN rustup target add wasm32-unknown-unknown
+RUN ARCH=$(uname -m) && \
+    curl -sL "https://github.com/leptos-rs/cargo-leptos/releases/download/v0.3.11/cargo-leptos-${ARCH}-unknown-linux-gnu.tar.gz" \
+    | tar -xz -C /usr/local/bin --strip-components=1 "cargo-leptos-${ARCH}-unknown-linux-gnu/cargo-leptos"
+WORKDIR /app
+COPY . .
+RUN cargo leptos build --release
+
+FROM docker.io/library/debian:bookworm-slim
+WORKDIR /app
+COPY --from=build /app/target/release/frontend /app/frontend
+COPY --from=build /app/target/site /app/site
+ENV LEPTOS_OUTPUT_NAME=frontend \
+    LEPTOS_SITE_ROOT=site \
+    LEPTOS_SITE_PKG_DIR=pkg \
+    LEPTOS_SITE_ADDR=0.0.0.0:3001
+EXPOSE 3001
+CMD ["./frontend"]

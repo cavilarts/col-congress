@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: docker.io/library/postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-congreso}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-congreso}
+      POSTGRES_DB: ${POSTGRES_DB:-congreso}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Containerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Containerfile
+    ports:
+      - "3001:3001"
+
+volumes:
+  postgres_data:
