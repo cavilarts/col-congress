@@ -45,6 +45,7 @@ Notes:
 ### FR3 Fallback and failure handling
 
 - If the Senado website fails (network error, non-success HTTP status, or no senators parsed), the job tries the Registraduría source.
+- **v1 status:** no structured Registraduría source was found (technical spec, section 11, decision 1). The fallback is disabled in v1, so this step is skipped.
 - If both sources fail, the job keeps the last successfully stored data unchanged and logs the error.
 - A failed run never leaves the database empty or partially updated. Each run is applied in a single transaction.
 

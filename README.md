@@ -90,8 +90,10 @@ Backend:
 
 ```sh
 cd backend
-cargo run                       # http://localhost:3000
+DATABASE_URL=postgres://congreso:congreso@127.0.0.1:5433/congreso cargo run   # http://localhost:3000
 ```
+
+The backend needs a PostgreSQL 17 database (for example the `postgres` service from `compose.yaml`). Migrations run at startup. Startup also loads the 2018-2022 senators and refreshes the 2026-2030 senators and representatives when their data is missing or older than 24 hours.
 
 Frontend (development server with hot reload on port 3002):
 
@@ -114,18 +116,28 @@ cd backend && cargo check && cargo test
 cd frontend && cargo leptos build
 ```
 
-There are no automated tests yet.
+Backend integration tests need a PostgreSQL database. Set `TEST_DATABASE_URL` to a database that can be wiped; the tests truncate the `senators` and `representatives` tables. Without it, those tests are skipped.
+
+```sh
+cd backend
+TEST_DATABASE_URL=postgres://congreso:congreso@127.0.0.1:5433/congreso_test cargo test
+cargo test live_listing -- --ignored   # calls the live Congreso Visible site
+```
+
+Coverage gate (at least 85% of lines, `main.rs` excluded):
+
+```sh
+cargo llvm-cov --all-features --fail-under-lines 85 --ignore-filename-regex 'src/main.rs'
+```
 
 ## Configuration
 
 | Component | Setting                 | Where                                       |
 |-----------|-------------------------|---------------------------------------------|
-| backend   | Bind address `0.0.0.0:3000` | `backend/src/main.rs`                   |
+| backend   | `DATABASE_URL` (required), `BIND_ADDRESS` (default `0.0.0.0:3000`), `DATOS_GOV_CO_APP_TOKEN` (optional), `RUST_LOG` (default `info`) | environment, read by `backend/src/config.rs` |
 | frontend  | Site address `127.0.0.1:3001`, reload port `3002` | `frontend/Cargo.toml` (`[package.metadata.leptos]`) |
 | frontend (container) | `LEPTOS_*` env vars (`LEPTOS_SITE_ADDR=0.0.0.0:3001`, etc.) | `frontend/Containerfile` |
 | postgres  | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | `compose.yaml` (env vars with defaults) |
-
-The backend does not yet read a database URL or any other configuration.
 
 ## Troubleshooting
 
@@ -136,7 +148,6 @@ The backend does not yet read a database URL or any other configuration.
 
 ## Roadmap
 
-- Add a PostgreSQL adapter and database migrations in the backend.
-- Define domain entities and ports for the government data sources.
-- Implement adapters that call Colombia's public APIs.
+- Reconcile the current-term lists with the CNE once it can be reached (senators: 102 found, 103 seats; representatives: 181 found, 183 seats).
+- Historical representatives (2018-2022): no source found yet.
 - Build the frontend pages on top of the backend API.

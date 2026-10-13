@@ -14,6 +14,8 @@ services:
     build:
       context: ./backend
       dockerfile: Containerfile
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-congreso}:${POSTGRES_PASSWORD:-congreso}@postgres:5432/${POSTGRES_DB:-congreso}
     ports:
       - "3000:3000"
     depends_on:

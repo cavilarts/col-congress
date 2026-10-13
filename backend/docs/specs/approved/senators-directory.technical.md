@@ -428,7 +428,7 @@ Versions are picked at implementation time as the latest compatible releases. Th
 
 Status: WIP revision. Adds section 14 (error handling). Requires re-approval.
 
-1. **Registraduría fallback. Decided: option (a).** The fallback source has not been verified. The pages found during planning are for popular consultations and results, not a directory of senators. Options:
+1. **Registraduría fallback. Decided: option (a). Result (2026-10-11): no structured source found; the fallback is disabled in v1.** Checked: the Registraduría election results on datos.gov.co (2018 Senate results, `75f2-fe2s`) and the Registraduría CSV archive on cedae.datasketch.co (stops at 2019) contain election results, not a directory of current senators. The 2026 Congress escrutinio page is script-driven and has no list in its HTML. The use case takes an optional fallback (`Option<S>`), so the run uses the primary source only. The fallback is not a dummy source. The original reasoning follows. The pages found during planning are for popular consultations and results, not a directory of senators. Options:
    - (a) Investigate a structured Registraduría source during implementation. If none exists, the fallback is disabled in v1 and the functional spec is updated to say so.
    - (b) Mark the fallback as deferred now and update the functional spec.
    - Recommendation: (a) with a time box.
